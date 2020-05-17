@@ -22,3 +22,6 @@ def button_popup(text_to_show, title_to_show, buttons_to_press):
     '''https://pyautogui.readthedocs.io/en/latest/msgbox.html'''
     chosen_option = ag.confirm(text=text_to_show, title=title_to_show, buttons=buttons_to_press)
     return chosen_option
+
+def print_line():
+    print('--------------------------------------------------')

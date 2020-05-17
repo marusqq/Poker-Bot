@@ -7,6 +7,7 @@ __email__ = "pozniakovui@gmail.com"
 
 import scripts.util as util
 import scripts.image_recognition as image_recog
+import scripts.poker_strategies as ps
 import time
 
 def setup_cards():
@@ -65,8 +66,7 @@ def bot():
             quit()
         ## preflop
         elif action.lower() == 'preflop':
-            my_cards = preflop()
-            print('My Cards:', my_cards)
+            preflop()
             #wait for user confirmation that flop is finished
             action = util.button_popup(
                 text_to_show = 'Now at ' + action + '. Continue?', 
@@ -111,25 +111,43 @@ def bot():
             quit("Don't press X... :D")
     
 def preflop():
-    print('Get your own cards here:...')
-    return ['5♥', '7♠']
+    #my_cards = image_recog.hand_cards(hand_card_directories) 
+    my_cards = ['A♥', '2♥']
+    util.print_line()
+    print('[PREFLOP]: My Cards -', my_cards)
+    ps.preflop(my_cards)
+    util.print_line()
+
+    return 
 
 def flop():
     #cards = image_recog.table_cards(card_directories)
     cards = ['4♥', '8♦', '10♦']
     print('[FLOP]: Cards -', cards)
+    util.print_line()
+    ps.flop(cards)
+    util.print_line()
+
     return 
 
 def turn():
     #cards = image_recog.table_cards(card_directories)
     cards = ['4♥', '8♦', '10♦', 'A♦']
-    print('[TURN]: Cards - ', cards)
+    util.print_line()
+    print('[TURN]: Cards -', cards)
+    ps.turn(cards)
+    util.print_line()
+    
     return
 
 def river():
     #cards = image_recog.table_cards(card_directories)
     cards = ['4♥', '8♦', '10♦', 'A♦', '6♦']
-    print('[RIVER]: Cards - ', cards)
+    util.print_line()
+    print('[RIVER]: Cards -', cards)
+    ps.river(cards)
+    util.print_line()
+    
     return
 
 def after_hand(table_cards, my_cards):
