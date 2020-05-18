@@ -66,39 +66,47 @@ def bot():
             quit()
         ## preflop
         elif action.lower() == 'preflop':
-            preflop()
+            my_cards = preflop()
             #wait for user confirmation that flop is finished
             action = util.button_popup(
                 text_to_show = 'Now at ' + action + '. Continue?', 
                 title_to_show = '♠♥ Poker Face ♦♣',
-                buttons_to_press = ['Flop', 'Restart', 'Quit'])
+                buttons_to_press = ['Flop', 'Restart', 'Quit', 'Rescan'])
+            if action == 'Rescan':
+                action = 'Preflop'
 
         ## flop
         elif action.lower() == 'flop':
-            flop()
+            cards = flop(my_cards)
             #wait for user confirmation that flop is finished
             action = util.button_popup(
                 text_to_show = 'Now at ' + action + '. Continue?', 
                 title_to_show = '♠♥ Poker Face ♦♣',
-                buttons_to_press = ['Turn', 'Restart', 'Quit'])
+                buttons_to_press = ['Turn', 'Restart', 'Quit', 'Rescan'])
+            if action == 'Rescan':
+                action = 'Flop'
 
         ## turn
         elif action.lower() == 'turn':
-            turn()
+            cards = turn(my_cards, cards)
             #wait for user confirmation that flop is finished
             action = util.button_popup(
                 text_to_show = 'Now at ' + action + '. Continue?', 
                 title_to_show = '♠♥ Poker Face ♦♣',
-                buttons_to_press = ['River', 'Restart', 'Quit'])
+                buttons_to_press = ['River', 'Restart', 'Quit', 'Rescan'])
+            if action == 'Rescan':
+                action = 'Turn'
         
         ## river
         elif action.lower() == 'river':
-            river()
+            river(my_cards, cards)
             #wait for user confirmation that flop is finished
             action = util.button_popup(
                 text_to_show = 'Now at ' + action + '. Continue?', 
                 title_to_show = '♠♥ Poker Face ♦♣',
-                buttons_to_press = ['Start Over', 'Restart', 'Quit'])
+                buttons_to_press = ['Start Over', 'Restart', 'Quit', 'Rescan'])
+            if action == 'Rescan':
+                action = 'River'
         
 
         elif action == 'Restart' or action == 'Start Over':
@@ -111,42 +119,55 @@ def bot():
             quit("Don't press X... :D")
     
 def preflop():
-    #my_cards = image_recog.hand_cards(hand_card_directories) 
-    my_cards = ['A♥', '2♥']
+    _type = 'Hand'
+    my_cards = input_cards(card_count = 2, type = _type)
+    players = input_players(type = _type)
+    #my_cards = ['A♥', '2♥']
+    
     util.print_line()
     print('[PREFLOP]: My Cards -', my_cards)
-    ps.preflop(my_cards)
+    ps.preflop(my_cards, players)
+    util.print_line(True)
+
+    return my_cards
+
+def flop(my_cards):
+    _type = 'Flop'
+    cards = input_cards(card_count = 3, type = _type)
+    players = input_players(type = _type)
+    #cards = ['4♥', '8♦', '10♦']
+    
     util.print_line()
-
-    return 
-
-def flop():
-    #cards = image_recog.table_cards(card_directories)
-    cards = ['4♥', '8♦', '10♦']
     print('[FLOP]: Cards -', cards)
-    util.print_line()
-    ps.flop(cards)
-    util.print_line()
+    ps.flop(cards, my_cards, players)
+    util.print_line(True)
 
-    return 
+    return cards
 
-def turn():
-    #cards = image_recog.table_cards(card_directories)
-    cards = ['4♥', '8♦', '10♦', 'A♦']
+def turn(my_cards, cards):
+    _type = 'Turn'
+    cards = cards + input_cards(card_count = 1, type = _type)
+    players = input_players(type = _type)
+
+    #cards = ['4♥', '8♦', '10♦', 'A♦']
+    
     util.print_line()
     print('[TURN]: Cards -', cards)
-    ps.turn(cards)
-    util.print_line()
+    ps.turn(cards, my_cards, players)
+    util.print_line(True)
     
-    return
+    return cards
 
-def river():
-    #cards = image_recog.table_cards(card_directories)
-    cards = ['4♥', '8♦', '10♦', 'A♦', '6♦']
+def river(my_cards, cards):
+    _type = 'River'
+    cards = cards + input_cards(card_count = 1, type = _type)
+    players = input_players(type = _type)
+    #cards = ['4♥', '8♦', '10♦', 'A♦', '6♦']
+    
     util.print_line()
     print('[RIVER]: Cards -', cards)
-    ps.river(cards)
-    util.print_line()
+    ps.river(cards, my_cards, players)
+    util.print_line(True)
     
     return
 
@@ -155,3 +176,30 @@ def after_hand(table_cards, my_cards):
     my_cards = []
     return table_cards, my_cards
 
+def input_cards(card_count, type):
+
+    cards = []
+    while card_count > 0:
+        card_number = \
+        util.button_popup(
+            text_to_show = type + ' Card Number:',
+            title_to_show = '♠♥ Poker Face ♦♣',
+            buttons_to_press = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2'])
+
+        card_color = \
+        util.button_popup(
+            text_to_show = type + ' Card Color:',
+            title_to_show = '♠♥ Poker Face ♦♣',
+            buttons_to_press = ['♠', '♥', '♦', '♣'])
+        
+        cards.append(card_number + card_color)
+        card_count -= 1
+
+    return cards
+    
+def input_players(type):
+    players =  util.button_popup(
+            text_to_show = type + ' Players playing:',
+            title_to_show = '♠♥ Poker Face ♦♣',
+            buttons_to_press = ['6', '5', '4', '3', '2', '1'])
+    return players

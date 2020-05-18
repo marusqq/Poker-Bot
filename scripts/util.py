@@ -23,5 +23,16 @@ def button_popup(text_to_show, title_to_show, buttons_to_press):
     chosen_option = ag.confirm(text=text_to_show, title=title_to_show, buttons=buttons_to_press)
     return chosen_option
 
-def print_line():
-    print('--------------------------------------------------')
+def print_line(newline_at_end = False):
+    if newline_at_end:
+        print('--------------------------------------------------\n')
+    else:
+        print('--------------------------------------------------')
+def split_color_number(cards):
+    return cards[:-1].upper(), cards[-1:]
+
+def get_card_number(card):
+    return card[:-1].upper()
+
+def get_card_color(card):
+    return card[-1:]

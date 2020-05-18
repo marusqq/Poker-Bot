@@ -4,13 +4,13 @@ __author__ = "Marius Pozniakovas"
 __email__ = "pozniakovui@gmail.com"
 '''poker algorithms script used to calculate chances when sitting on poker table'''
 
-def preflop(cards):
-    
-    first_card_number = cards[0][:-1].upper()
-    first_card_color = cards[0][-1:]
+import scripts.util as util
 
-    second_card_number = cards[1][:-1].upper()
-    second_card_color = cards[1][-1:]
+
+def preflop(cards, players):
+    
+    first_card_number, first_card_color = util.split_color_number(cards[0])
+    second_card_number, second_card_color = util.split_color_number(cards[1])
 
     #convert 10 to T
     if first_card_number == '10':
@@ -27,20 +27,24 @@ def preflop(cards):
 
     cards = [first_card_number, second_card_number, first_card_color, second_card_color]
 
+    #generate flops and percentage
     generate_pre_flops(mode = feature, cards = cards)
        
     return
 
-def flop(cards):
+def flop(cards, my_cards, players):
+    check_for_possible_combos(cards, my_cards, cards_on_table = players)
     return
 
-def turn(cards):
+def turn(cards, my_cards, players):
+    check_for_possible_combos(cards, my_cards, cards_on_table = players)
     return
     
-def river(cards):
+def river(cards, my_cards, players):
+    check_for_possible_combos(cards, my_cards, cards_on_table = players)
     return
 
-def generate_pre_flops(mode, cards):
+def generate_pre_flops(mode, cards): 
     '''https://www.preflophands.com/'''
     if mode == 'suited':
         pre_flops = {
@@ -220,7 +224,6 @@ def generate_pre_flops(mode, cards):
             "82" : 168,
             "72" : 169 }
 
-
     find = cards[0] + cards[1]
     find2 = cards[1] + cards[0]
 
@@ -238,9 +241,98 @@ def generate_pre_flops(mode, cards):
     percentage = round((ranking * 100) / 167, 2)\
     
     print('Preflop rating from other preflops: ', end= '')
-    print(percentage, '%', end = ' ')
+    print(percentage, '% better', end = ' ')
     print('(' + str(ranking) + '/167)')
 
 
     return 
     
+def check_for_possible_combos(cards = None, my_cards = None, cards_on_table = 3, players_in_table = 5):
+
+    #TODO: ValueError: not enough values to unpack (expected 2, got 0)
+    sort_cards(cards)
+
+    if cards_on_table >= 3:
+        flush(cards, cards_on_table)
+        #check for royal flush
+        #'A♦♣♠♥'
+        # for card in cards:
+        #     same_colour = 
+        #print(cards_on_table)
+    #elif cards_on_table >= 4:
+    #     print(cards_on_table)
+
+    #elif cards_on_table >= 5:
+    #     print(cards_on_table)
+
+    
+    #check for royal flush
+    #for 
+
+def sort_cards(cards):
+
+    sort_by = {
+        'A' : 14,
+        'K' : 13,
+        'Q' : 12,
+        'J' : 11,
+        '10' : 10,
+        '9' : 9,
+        '8' : 8,
+        '7' : 7, 
+        '6' : 6,
+        '5' : 5,
+        '4' : 4,
+        '3' : 3,
+        '2' : 2
+    }
+
+    colors = []
+    numbers = []
+    new_cards = []
+
+    for card in cards:
+        
+        color = util.get_card_color(card)
+        colors.append(color)
+        
+        number = util.get_card_number(card)
+        numbers.append(sort_by.get(number))
+
+    numbers, colors = zip(*sorted(zip(numbers, colors)))
+
+    for i in range(len(numbers)):
+        #https://stackoverflow.com/questions/8023306/get-key-by-value-in-dictionary
+        number = list(sort_by.keys())[list(sort_by.values()).index(numbers[i])]
+        new_cards.append(str(number) + str(colors[i]))
+
+    return new_cards
+
+def straight(cards, card_count):
+    #7♦ 8♦ 9♦
+    return
+
+def flush(cards, card_count):
+    hearts = 0
+    clubs = 0
+    spades = 0
+    diamonds = 0
+
+    for card in cards:
+        check = util.get_card_color(card)
+        if check == '♥':
+            hearts += 1
+        elif check == '♣':
+            clubs += 1
+        elif check == '♠':
+            spades += 1
+        elif check == '♦':
+            diamonds += 1
+    
+    color_max = max(hearts, clubs, diamonds, spades)
+
+    #print(color_max)
+    return
+    
+def three_of_a_kind(cards, card_count):
+    return
