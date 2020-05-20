@@ -369,7 +369,7 @@ def check_for_possible_combos(cards = None, my_cards = None, type = None):
         print('Not recognised type =>', type)
         return
     
-    api_file = open(util.get_script_path + '//scripts//api_key.key')
+    api_file = open(util.get_script_path() + '//scripts//api_key.key')
     api_key = api_file.read()
     api_file.close()
 
