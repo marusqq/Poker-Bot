@@ -5,10 +5,11 @@ __email__ = "pozniakovui@gmail.com"
 '''poker algorithms script used to calculate chances when sitting on poker table'''
 
 import scripts.util as util
+import requests
+import datetime
 
-
-def preflop(cards, players):
-    
+def preflop(cards):
+    cards = sort_cards(cards)
     first_card_number, first_card_color = util.split_color_number(cards[0])
     second_card_number, second_card_color = util.split_color_number(cards[1])
 
@@ -29,23 +30,25 @@ def preflop(cards, players):
 
     #generate flops and percentage
     generate_pre_flops(mode = feature, cards = cards)
+    check_for_possible_combos(cards = cards, type = 'preflop')
        
     return
 
-def flop(cards, my_cards, players):
-    check_for_possible_combos(cards, my_cards, cards_on_table = players)
+def flop(cards, my_cards):
+    check_for_possible_combos(cards, my_cards, type = 'flop')
     return
 
-def turn(cards, my_cards, players):
-    check_for_possible_combos(cards, my_cards, cards_on_table = players)
+def turn(cards, my_cards):
+    check_for_possible_combos(cards, my_cards, type = 'turn')
     return
     
-def river(cards, my_cards, players):
-    check_for_possible_combos(cards, my_cards, cards_on_table = players)
+def river(cards, my_cards):
+    check_for_possible_combos(cards, my_cards, type = 'river')
     return
 
 def generate_pre_flops(mode, cards): 
     '''https://www.preflophands.com/'''
+
     if mode == 'suited':
         pre_flops = {
             "AK" : 4,
@@ -247,27 +250,142 @@ def generate_pre_flops(mode, cards):
 
     return 
     
-def check_for_possible_combos(cards = None, my_cards = None, cards_on_table = 3, players_in_table = 5):
-
-    #TODO: ValueError: not enough values to unpack (expected 2, got 0)
-    sort_cards(cards)
-
-    if cards_on_table >= 3:
-        flush(cards, cards_on_table)
-        #check for royal flush
-        #'A♦♣♠♥'
-        # for card in cards:
-        #     same_colour = 
-        #print(cards_on_table)
-    #elif cards_on_table >= 4:
-    #     print(cards_on_table)
-
-    #elif cards_on_table >= 5:
-    #     print(cards_on_table)
-
+def check_for_possible_combos(cards = None, my_cards = None, type = None):
     
-    #check for royal flush
-    #for 
+    if type == 'preflop':
+
+        api_url = "https://sf-api-on-demand-poker-odds-v1.p.rapidapi.com/pre-flop"
+
+        first_card_number = util.check_for_10(cards[0])
+        second_card_number = util.check_for_10(cards[1])
+        first_card_color = util.normalize_card_color(cards[2])
+        second_card_color = util.normalize_card_color(cards[3])
+
+        hole = first_card_number + first_card_color + ',' + second_card_number + second_card_color
+        querystring = {"hole": hole}
+
+    elif type == 'flop':
+
+        api_url = "https://sf-api-on-demand-poker-odds-v1.p.rapidapi.com/flop"
+
+        #split cards on table
+        #numbers
+        first_card_number = util.check_for_10(util.get_card_number(cards[0]))
+        second_card_number = util.check_for_10(util.get_card_number(cards[1]))
+        third_card_number = util.check_for_10(util.get_card_number(cards[2]))
+        #colors
+        first_card_color = util.normalize_card_color(util.get_card_color(cards[0]))
+        second_card_color = util.normalize_card_color(util.get_card_color(cards[1]))
+        third_card_color = util.normalize_card_color(util.get_card_color(cards[2]))
+
+        #split my cards
+        #numbers
+        my_first_card_number = util.check_for_10(util.get_card_number(my_cards[0]))
+        my_second_card_number = util.check_for_10(util.get_card_number(my_cards[1]))
+        #colors
+        my_first_card_color = util.normalize_card_color(util.get_card_color(my_cards[0]))
+        my_second_card_color = util.normalize_card_color(util.get_card_color(my_cards[1]))
+        
+        hole = my_first_card_number + my_first_card_color + ',' + \
+                my_second_card_number + my_second_card_color
+
+        board = first_card_number + first_card_color + ',' + \
+                second_card_number + second_card_color + ',' + \
+                third_card_number + third_card_color
+
+        querystring = {"hole" : hole, "board" : board}
+
+    elif type == 'turn':
+
+        api_url = "https://sf-api-on-demand-poker-odds-v1.p.rapidapi.com/turn"
+        #split cards on table
+        #numbers
+        first_card_number = util.check_for_10(util.get_card_number(cards[0]))
+        second_card_number = util.check_for_10(util.get_card_number(cards[1]))
+        third_card_number = util.check_for_10(util.get_card_number(cards[2]))
+        fourth_card_number = util.check_for_10(util.get_card_number(cards[3]))
+        #colors
+        first_card_color = util.normalize_card_color(util.get_card_color(cards[0]))
+        second_card_color = util.normalize_card_color(util.get_card_color(cards[1]))
+        third_card_color = util.normalize_card_color(util.get_card_color(cards[2]))
+        fourth_card_color = util.normalize_card_color(util.get_card_color(cards[3]))
+
+        #split my cards
+        #numbers
+        my_first_card_number = util.check_for_10(util.get_card_number(my_cards[0]))
+        my_second_card_number = util.check_for_10(util.get_card_number(my_cards[1]))
+        #colors
+        my_first_card_color = util.normalize_card_color(util.get_card_color(my_cards[0]))
+        my_second_card_color = util.normalize_card_color(util.get_card_color(my_cards[1]))
+
+        hole = my_first_card_number + my_first_card_color + ',' + \
+                my_second_card_number + my_second_card_color
+
+        board = first_card_number + first_card_color + ',' + \
+                second_card_number + second_card_color + ',' + \
+                third_card_number + third_card_color + ',' + \
+                fourth_card_number + fourth_card_color
+
+        querystring = {"hole" : hole, "board" : board}
+
+    elif type == 'river':
+       
+        api_url = "https://sf-api-on-demand-poker-odds-v1.p.rapidapi.com/river"
+
+        #split cards on table
+        #numbers
+        first_card_number = util.check_for_10(util.get_card_number(cards[0]))
+        second_card_number = util.check_for_10(util.get_card_number(cards[1]))
+        third_card_number = util.check_for_10(util.get_card_number(cards[2]))
+        fourth_card_number = util.check_for_10(util.get_card_number(cards[3]))
+        fifth_card_number = util.check_for_10(util.get_card_number(cards[4]))
+        #colors
+        first_card_color = util.normalize_card_color(util.get_card_color(cards[0]))
+        second_card_color = util.normalize_card_color(util.get_card_color(cards[1]))
+        third_card_color = util.normalize_card_color(util.get_card_color(cards[2]))
+        fourth_card_color = util.normalize_card_color(util.get_card_color(cards[3]))
+        fifth_card_color = util.normalize_card_color(util.get_card_color(cards[4]))
+
+        #split my cards
+        #numbers
+        my_first_card_number = util.check_for_10(util.get_card_number(my_cards[0]))
+        my_second_card_number = util.check_for_10(util.get_card_number(my_cards[1]))
+        #colors
+        my_first_card_color = util.normalize_card_color(util.get_card_color(my_cards[0]))
+        my_second_card_color = util.normalize_card_color(util.get_card_color(my_cards[1]))
+
+        hole = my_first_card_number + my_first_card_color + ',' + \
+                my_second_card_number + my_second_card_color
+
+        board = first_card_number + first_card_color + ',' + \
+                second_card_number + second_card_color + ',' + \
+                third_card_number + third_card_color + ',' + \
+                fourth_card_number + fourth_card_color + ',' + \
+                fifth_card_number + fifth_card_color
+        
+        querystring = {"hole" : hole, "board" : board}
+
+    else:
+        print('Not recognised type =>', type)
+        return
+    
+    api_file = open(util.get_script_path + '//scripts//api_key.key')
+    api_key = api_file.read()
+    api_file.close()
+
+    headers = {
+    'x-rapidapi-host': "sf-api-on-demand-poker-odds-v1.p.rapidapi.com",
+    'x-rapidapi-key': api_key
+    }
+
+    times_api_used = util.read_api_count(True)
+
+    if times_api_used < 50:
+        response = requests.request("GET", api_url, headers=headers, params=querystring)
+        if response:
+            response = util.convert_api_to_json(response)
+            util.add_api_count()
+            util.print_api_data(response, type = type)
 
 def sort_cards(cards):
 
@@ -307,32 +425,3 @@ def sort_cards(cards):
         new_cards.append(str(number) + str(colors[i]))
 
     return new_cards
-
-def straight(cards, card_count):
-    #7♦ 8♦ 9♦
-    return
-
-def flush(cards, card_count):
-    hearts = 0
-    clubs = 0
-    spades = 0
-    diamonds = 0
-
-    for card in cards:
-        check = util.get_card_color(card)
-        if check == '♥':
-            hearts += 1
-        elif check == '♣':
-            clubs += 1
-        elif check == '♠':
-            spades += 1
-        elif check == '♦':
-            diamonds += 1
-    
-    color_max = max(hearts, clubs, diamonds, spades)
-
-    #print(color_max)
-    return
-    
-def three_of_a_kind(cards, card_count):
-    return

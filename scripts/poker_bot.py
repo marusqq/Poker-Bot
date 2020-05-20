@@ -110,6 +110,7 @@ def bot():
         
 
         elif action == 'Restart' or action == 'Start Over':
+            util.clear_screen()
             action = 'Preflop'
 
         elif action == 'Quit':
@@ -121,12 +122,11 @@ def bot():
 def preflop():
     _type = 'Hand'
     my_cards = input_cards(card_count = 2, type = _type)
-    players = input_players(type = _type)
     #my_cards = ['A♥', '2♥']
     
     util.print_line()
     print('[PREFLOP]: My Cards -', my_cards)
-    ps.preflop(my_cards, players)
+    ps.preflop(my_cards)
     util.print_line(True)
 
     return my_cards
@@ -134,12 +134,11 @@ def preflop():
 def flop(my_cards):
     _type = 'Flop'
     cards = input_cards(card_count = 3, type = _type)
-    players = input_players(type = _type)
     #cards = ['4♥', '8♦', '10♦']
     
     util.print_line()
     print('[FLOP]: Cards -', cards)
-    ps.flop(cards, my_cards, players)
+    ps.flop(cards, my_cards)
     util.print_line(True)
 
     return cards
@@ -147,13 +146,12 @@ def flop(my_cards):
 def turn(my_cards, cards):
     _type = 'Turn'
     cards = cards + input_cards(card_count = 1, type = _type)
-    players = input_players(type = _type)
 
     #cards = ['4♥', '8♦', '10♦', 'A♦']
     
     util.print_line()
     print('[TURN]: Cards -', cards)
-    ps.turn(cards, my_cards, players)
+    ps.turn(cards, my_cards)
     util.print_line(True)
     
     return cards
@@ -161,12 +159,11 @@ def turn(my_cards, cards):
 def river(my_cards, cards):
     _type = 'River'
     cards = cards + input_cards(card_count = 1, type = _type)
-    players = input_players(type = _type)
     #cards = ['4♥', '8♦', '10♦', 'A♦', '6♦']
     
     util.print_line()
     print('[RIVER]: Cards -', cards)
-    ps.river(cards, my_cards, players)
+    ps.river(cards, my_cards)
     util.print_line(True)
     
     return
@@ -186,20 +183,19 @@ def input_cards(card_count, type):
             title_to_show = '♠♥ Poker Face ♦♣',
             buttons_to_press = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2'])
 
+        if card_number is None:
+            quit('No card number entered')
+
         card_color = \
         util.button_popup(
             text_to_show = type + ' Card Color:',
             title_to_show = '♠♥ Poker Face ♦♣',
             buttons_to_press = ['♠', '♥', '♦', '♣'])
         
+        if card_color is None:
+            quit('No card color entered')
+        
         cards.append(card_number + card_color)
         card_count -= 1
 
     return cards
-    
-def input_players(type):
-    players =  util.button_popup(
-            text_to_show = type + ' Players playing:',
-            title_to_show = '♠♥ Poker Face ♦♣',
-            buttons_to_press = ['6', '5', '4', '3', '2', '1'])
-    return players

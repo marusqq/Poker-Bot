@@ -1,7 +1,6 @@
 # custom
-
 testing_grounds/
-
+scripts/api_key.key
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
